@@ -1,4 +1,4 @@
-package de.accesor.person;
+package de.accesor.models;
 
 import java.util.Objects;
 
