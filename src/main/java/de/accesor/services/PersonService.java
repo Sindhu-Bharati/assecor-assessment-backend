@@ -1,37 +1,45 @@
 package de.accesor.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.accesor.models.Person;
+import de.accesor.dto.PersonDto;
+import de.accesor.mappers.PersonMapper;
+import de.accesor.entities.Person;
 import de.accesor.repository.csv.CsvFileRepository;
 import de.accesor.repository.PersonRepository;
 
 @Service
 public class PersonService {
 
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
 
     @Autowired
-    public PersonService(CsvFileRepository dataSourceReader) {
+    public PersonService(final CsvFileRepository dataSourceReader) {
         this.personRepository = dataSourceReader;
     }
 
-    public List<Person> getAllPersons() {
-        return this.personRepository.getAllPersons();
+    public List<PersonDto> getAllPersons() {
+        List<Person> personList = this.personRepository.getAllPersons();
+        return personList.stream().map(PersonMapper::mapPersonEntityToPersonDto).collect(Collectors.toList());
     }
 
-    public Person getPersonById(long id) {
-        return this.personRepository.getPersonById(id);
+    public PersonDto getPersonById(long id) {
+        Person person =  this.personRepository.getPersonById(id);
+        return PersonMapper.mapPersonEntityToPersonDto(person);
     }
 
-	public List<Person> getPersonByColour(String colour) {
-		return this.personRepository.getPersonByColour(colour);
-	}
+	public List<PersonDto> getPersonByColour(String colour) {
+        List<Person> personList = this.personRepository.getPersonByColour(colour);
+        return personList.stream().map(PersonMapper::mapPersonEntityToPersonDto).collect(Collectors.toList());
 
-	public void addPerson(Person person) {
-		this.personRepository.addPerson(person);		
+    }
+
+	public int addPerson(PersonDto person) {
+		this.personRepository.addPerson(PersonMapper.mapPersonDtoToPersonEntity(person));
+        return getAllPersons().size();
 	}
 }

@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Component;
 
+import de.accesor.entities.Address;
+import de.accesor.exceptions.CsvFileException;
 import de.accesor.exceptions.UserNotFoundException;
 import de.accesor.repository.PersonRepository;
-import de.accesor.util.IdToColourMapper;
-import de.accesor.models.Person;
+import de.accesor.mappers.IdToColourMapper;
+import de.accesor.entities.Person;
 
 @Component
 public class CsvFileRepository implements PersonRepository {
@@ -31,14 +33,23 @@ public class CsvFileRepository implements PersonRepository {
         for (String line: csvFileHandler.getFileContent()) {
             final String[] person = line.split(",");
 
+            if (person.length < 4) {
+                throw new CsvFileException("Missing columns in provided csv filed. Please provide 4 fields for each person");
+            }
+
             final String firstName = person[1];
             final String lastName = person[0];
             final String[] address = person[2].trim().split(" ");
+
+            if (address.length < 2) {
+                throw new CsvFileException("Address is in a wrong format. Please provide in format 'postalcode city'");
+            }
+
             final String zipCode = address[0];
             final String city = String.join(",", Arrays.copyOfRange(address, 1, address.length)).replace(",", " ");
             final String color = IdToColourMapper.getColour(person[3]);
 
-            persons.add(new Person(personId++, firstName, lastName, zipCode, city, color));
+            persons.add(new Person(personId++, firstName, lastName, color, new Address(zipCode, city)));
         }
         return persons;
     }
@@ -54,7 +65,5 @@ public class CsvFileRepository implements PersonRepository {
 
     public void addPerson(Person person) {
     	csvFileHandler.addPerson(person);
-
-
     }
 }

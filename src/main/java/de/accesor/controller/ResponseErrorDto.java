@@ -1,15 +1,13 @@
-package de.accesor.models;
+package de.accesor.controller;
 
 import java.util.Objects;
-
-import org.springframework.http.HttpStatus;
 
 public class ResponseErrorDto {
     private String title;
     private int status;
 
     public ResponseErrorDto() {
-        super(); // The reason of this constructor is because of Object mapper
+        super();
     }
 
     public ResponseErrorDto(final String title, final int status) {
